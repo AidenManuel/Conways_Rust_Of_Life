@@ -32,6 +32,7 @@ use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
+use piston::GenericEvent;
 
 const HEIGHT: usize = 600;
 const WIDTH: usize = 1000;
@@ -43,7 +44,9 @@ const SIZE: usize = (ROWS) * (COLS);
 pub struct App { 
     // OpenGL drawing backend.
     gl: GlGraphics,
-    state: [bool; SIZE]
+    state: [bool; SIZE],
+    cursor_pos: [f64; 2],
+    paused: bool
 }
 
 impl App {
@@ -108,37 +111,80 @@ impl App {
     ///////
     
     fn update(&mut self, _args: &UpdateArgs) {
-        let mut i = 0;
-        let mut neighbour = 0;
-        let previous_state: [bool; SIZE] = self.state;
+        if !self.paused {
+            let mut i = 0;
+            let mut neighbour = 0;
+            let previous_state: [bool; SIZE] = self.state;
 
-        // For each pixel in the scene...
-        while i < SIZE {
+            // For each pixel in the scene...
+            while i < SIZE {
 
-            // Check if all the neighbours are alive or dead...
-            if previous_state[(SIZE + i - 1 - COLS) % SIZE] {neighbour += 1;}
-            if previous_state[(SIZE + i - COLS) % SIZE] {neighbour += 1;}
-            if previous_state[(SIZE + i + 1 - COLS) % SIZE] {neighbour += 1;}
-            if previous_state[(SIZE + i - 1) % SIZE] {neighbour += 1;}
-            if previous_state[(SIZE + i + 1) % SIZE] {neighbour += 1;}
-            if previous_state[(SIZE + i - 1 + COLS) % SIZE] {neighbour += 1;}
-            if previous_state[(SIZE + i + COLS) % SIZE] {neighbour += 1;}
-            if previous_state[(SIZE + i + 1 + COLS) % SIZE] {neighbour += 1;}
+                // Check if all the neighbours are alive or dead...
+                if previous_state[(SIZE + i - 1 - COLS) % SIZE] {neighbour += 1;}
+                if previous_state[(SIZE + i - COLS) % SIZE] {neighbour += 1;}
+                if previous_state[(SIZE + i + 1 - COLS) % SIZE] {neighbour += 1;}
+                if previous_state[(SIZE + i - 1) % SIZE] {neighbour += 1;}
+                if previous_state[(SIZE + i + 1) % SIZE] {neighbour += 1;}
+                if previous_state[(SIZE + i - 1 + COLS) % SIZE] {neighbour += 1;}
+                if previous_state[(SIZE + i + COLS) % SIZE] {neighbour += 1;}
+                if previous_state[(SIZE + i + 1 + COLS) % SIZE] {neighbour += 1;}
 
-            // Based on current state, change to new state!
-            if previous_state[i] {
-                if neighbour < 2 || neighbour > 3 {
+                // Based on current state, change to new state!
+                if previous_state[i] {
+                    if neighbour < 2 || neighbour > 3 {
+                        self.state[i] = !previous_state[i];
+                    }
+                } else if neighbour == 3 {
                     self.state[i] = !previous_state[i];
+                } else {
+                    self.state[i] = previous_state[i];
                 }
-            } else if neighbour == 3 {
-                self.state[i] = !previous_state[i];
-            } else {
-                self.state[i] = previous_state[i];
-            }
 
-            // Don't forget to update your variables ;)
-            i += 1;
-            neighbour = 0;
+                // Don't forget to update your variables ;)
+                i += 1;
+                neighbour = 0;
+            }
+        }
+    }
+
+    /////////
+    // EVENT FUNCTION
+    ///////
+    
+    fn event<E: GenericEvent>(&mut self, pos: [f64; 2], e: &E) {
+        use piston::input::{Button, Key, MouseButton};
+
+        // Mouse Function Added!
+        // Left Click to change the flip the state of a cell
+        if let Some(pos) = e.mouse_cursor_args() {
+            self.cursor_pos = pos;
+        }
+        if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {
+            // Find coordinates relative to upper left corner.
+            let x = self.cursor_pos[0] - pos[0];
+            let y = self.cursor_pos[1] - pos[1];
+            
+            // Check that coordinates are inside board boundaries.
+            if x >= 0.0 && x <= WIDTH as f64 && y >= 0.0 && y <= HEIGHT as f64 {
+                // Compute the cell position.
+                let cell_x = (x / SCALE as f64) as usize;
+                let cell_y = (y / SCALE as f64) as usize;
+                // Flip the state of that cell
+                self.state[(cell_x as usize) + (cell_y as usize) * (COLS)] = !self.state[(cell_x as usize) + (cell_y as usize) * (COLS)];
+            }
+        }
+        // Key Functions Added!
+        // Space:   pause the game
+        // C:       cull all living cells
+        // R:       create a random starting board
+        if let Some(Button::Keyboard(key)) = e.press_args() {
+                let mut i = 0;
+                match key {
+                    Key::Space => self.paused = !self.paused,
+                    Key::C => self.state = [false; SIZE],
+                    Key::R => while i < SIZE { self.state[i] = rand::random(); i = i + 1; },
+                    _ => {}
+            }
         }
     }
 }
@@ -162,23 +208,27 @@ fn main() {
         .unwrap();
 
     // Creating and Populating State Array Randomly
-            let mut state: [bool; SIZE] = [false; SIZE];
-            let mut i = 0;
+    let mut state: [bool; SIZE] = [false; SIZE];
+    let mut i = 0;
 
-            // state array will determine whether a cell is "alive" or "dead"
-            while i < SIZE {
-                state[i] = rand::random();
-                i = i + 1;
-            }
+    // state array will determine whether a cell is "alive" or "dead"
+    while i < SIZE {
+        state[i] = rand::random();
+        i = i + 1;
+    }
 
     // Create a new game and run it.
     let mut app = App {
         gl: GlGraphics::new(opengl),
-        state: state 
+        state: state,
+        cursor_pos: [0.0, 0.0],
+        paused: false,
     };
 
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
+        app.event([0.0, 0.0], &e);
+
         if let Some(args) = e.render_args() {
             app.render(&args);
         }
