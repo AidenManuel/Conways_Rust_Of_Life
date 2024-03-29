@@ -33,9 +33,9 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
 
-const HEIGHT: usize = 240;
-const WIDTH: usize = 360;
-const SCALE: usize = 2;
+const HEIGHT: usize = 600;
+const WIDTH: usize = 1000;
+const SCALE: usize = 10;
 const ROWS: usize = HEIGHT / SCALE;
 const COLS: usize = WIDTH / SCALE;
 const SIZE: usize = (ROWS) * (COLS);
@@ -56,8 +56,8 @@ impl App {
 
         // Defining all necessary constants
 
-        const WHITE: [f32; 4] = [255.0, 255.0, 255.0, 1.0];
-        const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
+        const WHITE: [f32; 4] = [0.9, 0.9, 0.85, 1.0];
+        const BLACK: [f32; 4] = [0.6, 0.5, 0.52, 1.0];
         
         let mut colour = BLACK;
 
