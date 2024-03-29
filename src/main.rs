@@ -1,3 +1,26 @@
+////////////////////////////////////////////////////////////////////////
+/// 
+///  #####                                           #                       
+/// #     #   ##   #    # ######     ####  ######    #       # ###### ###### 
+/// #        #  #  ##  ## #         #    # #         #       # #      #      
+/// #  #### #    # # ## # #####     #    # #####     #       # #####  #####  
+/// #     # ###### #    # #         #    # #         #       # #      #      
+/// #     # #    # #    # #         #    # #         #       # #      #      
+///  #####  #    # #    # ######     ####  #         ####### # #      ###### 
+///
+///////////////////////////////////////////////////////////////////////
+///
+///  My first attempt at a Game of Life, and also my first time doing
+///  something in Rust (so go easy on me). Using Piston and OpenGL for
+///  rendering, based on a getting started tutorial from the Piston
+///  Github.
+///
+///////////////////////////////////////////////////////////////////////
+/// 
+///  Aiden Manuel - March 29th, 2024 - 3rd Year Computer Science Student
+///                                                                     
+///////////////////////////////////////////////////////////////////////
+
 extern crate glutin_window;
 extern crate graphics;
 extern crate opengl_graphics;
