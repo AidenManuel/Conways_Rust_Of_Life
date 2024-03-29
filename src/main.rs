@@ -26,9 +26,21 @@ impl App {
         let mut gridx: [f64; ROWS] = [0.0; ROWS];
         let mut gridy: [f64; COLS] = [0.0; COLS];
 
+        let mut i:usize = 0;
 
+        while i < ROWS{
+            gridx[i] = i as f64;
+            i = i + 1;
+        }
 
-        let square = rectangle::square(0.0, 0.0, 50.0);
+        i = 0;
+
+        while i < COLS{
+            gridy[i] = i as f64;
+            i = i + 1;
+        }
+
+        let _square = rectangle::square(0.0, 0.0, 50.0);
         let (x, y) = (args.window_size[0] / 2.0, args.window_size[1] / 2.0);
 
         self.gl.draw(args.viewport(), |c, gl| {
@@ -43,14 +55,15 @@ impl App {
             // Draw a box rotating around the middle of the screen.
             for x in gridx{
                 for y in gridy{
-                    let square = rectangle::square(x, y, 200.0/f64::from(ROWS));
+                    let square = rectangle::square(x, y, 1.0);
+                    rectangle(RED, square, transform, gl);
                 }
             }
-            rectangle(RED, square, transform, gl);
         });
     }
 
-    fn update(&mut self, args: &UpdateArgs) {
+    fn update(&mut self, _args: &UpdateArgs) {
+        
     }
 }
 
@@ -59,7 +72,7 @@ fn main() {
     let opengl = OpenGL::V3_2;
 
     // Create a Glutin window.
-    let mut window: Window = WindowSettings::new("spinning-square", [200, 200])
+    let mut window: Window = WindowSettings::new("Game of Life", [200, 200])
         .graphics_api(opengl)
         .exit_on_esc(true)
         .build()
