@@ -33,9 +33,12 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
 
-const ROWS: usize = 240;
-const COLS: usize = 360;
-const SIZE: usize = ROWS * COLS;
+const HEIGHT: usize = 240;
+const WIDTH: usize = 360;
+const SCALE: usize = 2;
+const ROWS: usize = HEIGHT / SCALE;
+const COLS: usize = WIDTH / SCALE;
+const SIZE: usize = (ROWS) * (COLS);
 
 pub struct App { 
     // OpenGL drawing backend.
@@ -70,12 +73,12 @@ impl App {
         // DRAW FUNCTION
         ///////
 
-        while y < (ROWS as f64){
-            while x < (COLS as f64){
+        while y < ((ROWS) as f64){
+            while x < ((COLS) as f64){
 
                 // We draw each cell as a square, which is a data structure
                 // with 4 floating point values.
-                let square = rectangle::square(x, y, 1.0);
+                let square = rectangle::square(x * SCALE as f64, y * SCALE as f64, SCALE as f64);
                 
                 // OpenGL is used for rendering it to the screen.
                 self.gl.draw(args.viewport(), |c, gl| {
@@ -83,7 +86,7 @@ impl App {
                     // Colour white if DEAD and black if ALIVE
                     colour = WHITE;
 
-                    if state[(x as usize) + (y as usize) * COLS]{
+                    if state[(x as usize) + (y as usize) * (COLS)]{
                         colour = BLACK;
                     }
 
@@ -152,7 +155,7 @@ fn main() {
     let opengl = OpenGL::V3_2;
 
     // Create a Glutin window.
-    let mut window: Window = WindowSettings::new("Game of Life", [COLS as f64, ROWS as f64])
+    let mut window: Window = WindowSettings::new("Game of Life", [WIDTH as f64, HEIGHT as f64])
         .graphics_api(opengl)
         .exit_on_esc(true)
         .build()
