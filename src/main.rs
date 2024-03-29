@@ -14,8 +14,9 @@ const ROWS: usize = 240;
 const COLS: usize = 360;
 const SIZE: usize = ROWS * COLS;
 
-pub struct App {
-    gl: GlGraphics, // OpenGL drawing backend.
+pub struct App { 
+    // OpenGL drawing backend.
+    gl: GlGraphics,
     state: [bool; SIZE]
 }
 
@@ -48,18 +49,20 @@ impl App {
 
         while y < (ROWS as f64){
             while x < (COLS as f64){
+
+                // We draw each cell as a square, which is a data structure
+                // with 4 floating point values.
                 let square = rectangle::square(x, y, 1.0);
                 
+                // OpenGL is used for rendering it to the screen.
                 self.gl.draw(args.viewport(), |c, gl| {
                     
+                    // Colour white if DEAD and black if ALIVE
                     colour = WHITE;
 
                     if state[(x as usize) + (y as usize) * COLS]{
                         colour = BLACK;
                     }
-
-                    // Clear the screen.
-                    // clear(WHITE, gl);
 
                     let transform = c
                         .transform;
@@ -83,7 +86,10 @@ impl App {
         let mut neighbour = 0;
         let previous_state: [bool; SIZE] = self.state;
 
+        // For each pixel in the scene...
         while i < SIZE {
+
+            // Check if all the neighbours are alive or dead...
             if previous_state[(SIZE + i - 1 - COLS) % SIZE] {neighbour += 1;}
             if previous_state[(SIZE + i - COLS) % SIZE] {neighbour += 1;}
             if previous_state[(SIZE + i + 1 - COLS) % SIZE] {neighbour += 1;}
@@ -93,6 +99,7 @@ impl App {
             if previous_state[(SIZE + i + COLS) % SIZE] {neighbour += 1;}
             if previous_state[(SIZE + i + 1 + COLS) % SIZE] {neighbour += 1;}
 
+            // Based on current state, change to new state!
             if previous_state[i] {
                 if neighbour < 2 || neighbour > 3 {
                     self.state[i] = !previous_state[i];
@@ -102,11 +109,20 @@ impl App {
             } else {
                 self.state[i] = previous_state[i];
             }
+
+            // Don't forget to update your variables ;)
             i += 1;
             neighbour = 0;
         }
     }
 }
+
+///////////////////////////////
+// Most of this main method was not programmed by me. It comes
+// from a Piston tutorial, which is the crate I'm using to update
+// the do the graphics. See example from repo here:
+// https://github.com/PistonDevelopers/Piston-Tutorials/tree/master/getting-started
+///////////////////////////////
 
 fn main() {
     // Change this to OpenGL::V2_1 if not working.
