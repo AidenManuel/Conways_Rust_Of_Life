@@ -149,7 +149,7 @@ impl App {
 
     /////////
     // EVENT FUNCTION
-    ///////
+    ////////
     
     fn event<E: GenericEvent>(&mut self, pos: [f64; 2], e: &E) {
         use piston::input::{Button, Key, MouseButton};
