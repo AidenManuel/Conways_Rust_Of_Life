@@ -80,12 +80,18 @@ impl App {
     
     fn update(&mut self, _args: &UpdateArgs) {
         let mut i = 0;
+        let previous_state: [bool; SIZE] = self.state;
 
         // Populating State Array Randomly
 
             // state array will determine whether a cell is "alive" or "dead"
         while i < SIZE {
-            self.state[i] = !self.state[i];
+            if i == 0 {     
+                self.state[i] = previous_state[SIZE - 1];
+            } else {
+                self.state[i] = previous_state[i - 1];
+            }
+
             i = i + 1;
         }
     }
