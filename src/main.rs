@@ -2,6 +2,7 @@ extern crate glutin_window;
 extern crate graphics;
 extern crate opengl_graphics;
 extern crate piston;
+extern crate rand;
 
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{GlGraphics, OpenGL};
@@ -9,84 +10,84 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
 
+const ROWS: usize = 240;
+const COLS: usize = 320;
+const SIZE: usize = ROWS * COLS;
+
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
-    rows: i32,
-    cols: i32,
-    x: usize,
-    y: usize
+    state: [bool; SIZE]
 }
 
 impl App {
+    /////////
+    // RENDER FUNCTION
+    ///////
+
     fn render(&mut self, args: &RenderArgs) {
         use graphics::*;
 
         // Defining all necessary constants
 
         const WHITE: [f32; 4] = [255.0, 255.0, 255.0, 1.0];
-        const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
-
-        const ROWS: usize = 200;
-        const COLS: usize = 200;
-        const SIZE: i32 = 200;
-
-        self.rows = COLS as i32;
-        self.cols = ROWS as i32;
-
-        // Grids to store x and y coordinates of boxes
-
-        let mut gridx: [f64; ROWS] = [0.0; ROWS];
-        let mut gridy: [f64; COLS] = [0.0; COLS];
-
-        let mut i: usize = 0;
-        let x: usize = self.x;
-        let y: usize = self.y;
-
-        while i < ROWS{
-            gridx[i] = (i as f64) * ((SIZE / self.rows) as f64);
-            i = i + 1;
-        }
-
-        i = 0;
-
-        while i < COLS{
-            gridy[i] = (i as f64) * ((SIZE / self.cols) as f64);
-            i = i + 1;
-        }
+        const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
         
-        let square = rectangle::square(gridx[x], gridy[y], 10.0);
-        let (x, y) = (args.window_size[0] / 2.0, args.window_size[1] / 2.0);
+        let mut colour = BLACK;
 
-        self.gl.draw(args.viewport(), |c, gl| {
-            // Clear the screen.
-            clear(WHITE, gl);
+        // Variable Declarations
 
-            let transform = c
-                .transform
-                .trans(x, y)
-                .trans(-25.0, -25.0);
+        let state: [bool; SIZE] = self.state;
 
-            rectangle(RED, square, transform, gl);
-        });
+            // iterators
+        let mut x = 0.0;
+        let mut y = 0.0;
+
+        /////////
+        // DRAW FUNCTION
+        ///////
+
+        while y < (ROWS as f64){
+            while x < (COLS as f64){
+                let square = rectangle::square(x, y, 1.0);
+                
+                self.gl.draw(args.viewport(), |c, gl| {
+                    
+                    colour = BLACK;
+
+                    if state[(x as usize) + (y as usize) * COLS]{
+                        colour = WHITE;
+                    }
+
+                    // Clear the screen.
+                    // clear(WHITE, gl);
+
+                    let transform = c
+                        .transform;
+
+                    rectangle(colour, square, transform, gl);
+                });
+                x += 1.0;
+            }
+            x = 0.0;
+            y += 1.0;
+        }
     }
 
+    
+    /////////
+    // UPDATE FUNCTION
+    ///////
+    
     fn update(&mut self, _args: &UpdateArgs) {
-        if (self.x as i32) < self.rows - 1
+        let mut i = 0;
 
-        {
-            self.x += 1;
-        } 
-        else if (self.y as i32) < self.cols - 1 
-        {
-            self.y += 1;
-            self.x = 0;
-        } 
-        else 
-        {
-            self.y = 0;
-            self.x = 0;
+        // Populating State Array Randomly
+
+            // state array will determine whether a cell is "alive" or "dead"
+        while i < SIZE {
+            self.state[i] = !self.state[i];
+            i = i + 1;
         }
-        println!("x = {0}\ny = {1}\n", self.x, self.y);
     }
 }
 
@@ -95,19 +96,26 @@ fn main() {
     let opengl = OpenGL::V3_2;
 
     // Create a Glutin window.
-    let mut window: Window = WindowSettings::new("Game of Life", [200, 200])
+    let mut window: Window = WindowSettings::new("Game of Life", [COLS as f64, ROWS as f64])
         .graphics_api(opengl)
         .exit_on_esc(true)
         .build()
         .unwrap();
 
+    // Creating and Populating State Array Randomly
+            let mut state: [bool; SIZE] = [false; SIZE];
+            let mut i = 0;
+
+            // state array will determine whether a cell is "alive" or "dead"
+            while i < SIZE {
+                state[i] = rand::random();
+                i = i + 1;
+            }
+
     // Create a new game and run it.
     let mut app = App {
         gl: GlGraphics::new(opengl),
-        rows: 0,
-        cols: 0,
-        x: 0,
-        y: 0
+        state: state 
     };
 
     let mut events = Events::new(EventSettings::new());
