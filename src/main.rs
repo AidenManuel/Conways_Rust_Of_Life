@@ -11,7 +11,7 @@ use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
 
 const ROWS: usize = 240;
-const COLS: usize = 320;
+const COLS: usize = 360;
 const SIZE: usize = ROWS * COLS;
 
 pub struct App {
@@ -52,10 +52,10 @@ impl App {
                 
                 self.gl.draw(args.viewport(), |c, gl| {
                     
-                    colour = BLACK;
+                    colour = WHITE;
 
                     if state[(x as usize) + (y as usize) * COLS]{
-                        colour = WHITE;
+                        colour = BLACK;
                     }
 
                     // Clear the screen.
@@ -80,19 +80,30 @@ impl App {
     
     fn update(&mut self, _args: &UpdateArgs) {
         let mut i = 0;
+        let mut neighbour = 0;
         let previous_state: [bool; SIZE] = self.state;
 
-        // Populating State Array Randomly
-
-            // state array will determine whether a cell is "alive" or "dead"
         while i < SIZE {
-            if i == 0 {     
-                self.state[i] = previous_state[SIZE - 1];
-            } else {
-                self.state[i] = previous_state[i - 1];
-            }
+            if previous_state[(SIZE + i - 1 - COLS) % SIZE] {neighbour += 1;}
+            if previous_state[(SIZE + i - COLS) % SIZE] {neighbour += 1;}
+            if previous_state[(SIZE + i + 1 - COLS) % SIZE] {neighbour += 1;}
+            if previous_state[(SIZE + i - 1) % SIZE] {neighbour += 1;}
+            if previous_state[(SIZE + i + 1) % SIZE] {neighbour += 1;}
+            if previous_state[(SIZE + i - 1 + COLS) % SIZE] {neighbour += 1;}
+            if previous_state[(SIZE + i + COLS) % SIZE] {neighbour += 1;}
+            if previous_state[(SIZE + i + 1 + COLS) % SIZE] {neighbour += 1;}
 
-            i = i + 1;
+            if previous_state[i] {
+                if neighbour < 2 || neighbour > 3 {
+                    self.state[i] = !previous_state[i];
+                }
+            } else if neighbour == 3 {
+                self.state[i] = !previous_state[i];
+            } else {
+                self.state[i] = previous_state[i];
+            }
+            i += 1;
+            neighbour = 0;
         }
     }
 }
