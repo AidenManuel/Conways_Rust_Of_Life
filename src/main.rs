@@ -26,6 +26,7 @@ extern crate graphics;
 extern crate opengl_graphics;
 extern crate piston;
 extern crate rand;
+extern crate chrono;
 
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{GlGraphics, OpenGL};
@@ -35,7 +36,7 @@ use piston::window::WindowSettings;
 use piston::GenericEvent;
 
 const HEIGHT: usize = 600;
-const WIDTH: usize = 1000;
+const WIDTH: usize = 900;
 const SCALE: usize = 10;
 const ROWS: usize = HEIGHT / SCALE;
 const COLS: usize = WIDTH / SCALE;
@@ -51,7 +52,7 @@ pub struct App {
 
 impl App {
     /////////
-    // RENDER FUNCTION
+    /// RENDER FUNCTION
     ///////
 
     fn render(&mut self, args: &RenderArgs) {
@@ -107,7 +108,7 @@ impl App {
 
     
     /////////
-    // UPDATE FUNCTION
+    /// UPDATE FUNCTION
     ///////
     
     fn update(&mut self, _args: &UpdateArgs) {
@@ -148,7 +149,7 @@ impl App {
     }
 
     /////////
-    // EVENT FUNCTION
+    /// EVENT FUNCTION
     ////////
     
     fn event<E: GenericEvent>(&mut self, pos: [f64; 2], e: &E) {
