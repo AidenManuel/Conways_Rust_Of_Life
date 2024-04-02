@@ -37,7 +37,7 @@ use piston::GenericEvent;
 
 const HEIGHT: usize = 600;
 const WIDTH: usize = 900;
-const SCALE: usize = 10;
+const SCALE: usize = 5;
 const ROWS: usize = HEIGHT / SCALE;
 const COLS: usize = WIDTH / SCALE;
 const SIZE: usize = (ROWS) * (COLS);
@@ -121,14 +121,14 @@ impl App {
             while i < SIZE {
 
                 // Check if all the neighbours are alive or dead...
-                if previous_state[(SIZE + i - 1 - COLS) % SIZE] {neighbour += 1;}
-                if previous_state[(SIZE + i - COLS) % SIZE] {neighbour += 1;}
-                if previous_state[(SIZE + i + 1 - COLS) % SIZE] {neighbour += 1;}
-                if previous_state[(SIZE + i - 1) % SIZE] {neighbour += 1;}
-                if previous_state[(SIZE + i + 1) % SIZE] {neighbour += 1;}
-                if previous_state[(SIZE + i - 1 + COLS) % SIZE] {neighbour += 1;}
-                if previous_state[(SIZE + i + COLS) % SIZE] {neighbour += 1;}
-                if previous_state[(SIZE + i + 1 + COLS) % SIZE] {neighbour += 1;}
+                neighbour += previous_state[(SIZE + i - 1 - COLS) % SIZE] as i32;
+                neighbour += previous_state[(SIZE + i - COLS) % SIZE] as i32;
+                neighbour += previous_state[(SIZE + i + 1 - COLS) % SIZE] as i32;
+                neighbour += previous_state[(SIZE + i - 1) % SIZE] as i32;
+                neighbour += previous_state[(SIZE + i + 1) % SIZE] as i32;
+                neighbour += previous_state[(SIZE + i - 1 + COLS) % SIZE] as i32;
+                neighbour += previous_state[(SIZE + i + COLS) % SIZE] as i32;
+                neighbour += previous_state[(SIZE + i + 1 + COLS) % SIZE] as i32;
 
                 // Based on current state, change to new state!
                 if previous_state[i] {
