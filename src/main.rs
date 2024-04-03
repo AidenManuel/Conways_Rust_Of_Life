@@ -37,7 +37,7 @@ use piston::GenericEvent;
 
 const HEIGHT: usize = 600;
 const WIDTH: usize = 900;
-const SCALE: usize = 5;
+const SCALE: usize = 2;
 const ROWS: usize = HEIGHT / SCALE;
 const COLS: usize = WIDTH / SCALE;
 const SIZE: usize = (ROWS) * (COLS);
